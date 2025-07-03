@@ -22,8 +22,7 @@ bookRoutes.post("/books", async (req: Request, res: Response) => {
   }
 });
 
-// GET ALL BOOKS with filtering, sorting, limiting
-
+// GET ALL BOOKS with filtering, sorting, limiting //
 bookRoutes.get("/books", async (req: Request, res: Response) => {
   try {
     const genreFilter = req.query.filter as string;
@@ -48,6 +47,25 @@ bookRoutes.get("/books", async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: "Failed to retrieve books",
+      error: (error as Error).message,
+    });
+  }
+});
+
+// GET BOOK BY ID //
+bookRoutes.get("/books/:bookId", async (req: Request, res: Response) => {
+  try {
+    const { bookId } = req.params;
+    const book = await Book.findById(bookId);
+    res.status(200).json({
+      success: true,
+      message: "Book retrieved successfully",
+      data: book,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve book",
       error: (error as Error).message,
     });
   }

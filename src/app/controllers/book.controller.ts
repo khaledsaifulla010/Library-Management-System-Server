@@ -70,3 +70,27 @@ bookRoutes.get("/books/:bookId", async (req: Request, res: Response) => {
     });
   }
 });
+
+// UPDATE A BOOK BY ID //
+bookRoutes.put("/books/:bookId", async (req: Request, res: Response) => {
+  try {
+    const { bookId } = req.params;
+    const updateBookData = req.body;
+
+    const updatedBook = await Book.findByIdAndUpdate(bookId, updateBookData, {
+      new: true,
+      runValidators: true,
+    });
+    res.status(200).json({
+      success: true,
+      message: "Book updated successfully",
+      data: updatedBook,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to update book",
+      error: (error as Error).message,
+    });
+  }
+});

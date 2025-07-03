@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { Book } from "../models/book.model";
-
+import { globalError } from "../../utils/globalError";
 export const bookRoutes = express.Router();
 
 // CREATE A BOOK //
@@ -14,11 +14,8 @@ bookRoutes.post("/books", async (req: Request, res: Response) => {
       data,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to created books",
-      error: (error as Error).message,
-    });
+    const formatted = globalError(error);
+    res.status(400).json(formatted);
   }
 });
 
@@ -44,11 +41,8 @@ bookRoutes.get("/books", async (req: Request, res: Response) => {
       data: books,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve books",
-      error: (error as Error).message,
-    });
+    const formatted = globalError(error);
+    res.status(400).json(formatted);
   }
 });
 
@@ -63,11 +57,8 @@ bookRoutes.get("/books/:bookId", async (req: Request, res: Response) => {
       data: book,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve book",
-      error: (error as Error).message,
-    });
+    const formatted = globalError(error);
+    res.status(400).json(formatted);
   }
 });
 
@@ -87,11 +78,8 @@ bookRoutes.put("/books/:bookId", async (req: Request, res: Response) => {
       data: updatedBook,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to update book",
-      error: (error as Error).message,
-    });
+    const formatted = globalError(error);
+    res.status(400).json(formatted);
   }
 });
 
@@ -106,10 +94,7 @@ bookRoutes.delete("/books/:bookId", async (req: Request, res: Response) => {
       data: null,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to update book",
-      error: (error as Error).message,
-    });
+    const formatted = globalError(error);
+    res.status(400).json(formatted);
   }
 });

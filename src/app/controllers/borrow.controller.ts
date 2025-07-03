@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { Book } from "../models/book.model";
 import { Borrow } from "../models/borrow.model";
+import { globalError } from "../../utils/globalError";
 export const borrowRoutes = express.Router();
 
 // CREATE A BORROW //
@@ -17,11 +18,8 @@ borrowRoutes.post("/borrow", async (req: Request, res: Response) => {
       data: borrowRecord,
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: "Failed to borrow book",
-      error: (error as Error).message,
-    });
+    const formatted = globalError(error);
+    res.status(400).json(formatted);
   }
 });
 
@@ -64,10 +62,7 @@ borrowRoutes.get("/borrow", async (req: Request, res: Response) => {
       data: summary,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve borrowed books summary",
-      error: (error as Error).message,
-    });
+    const formatted = globalError(error);
+    res.status(400).json(formatted);
   }
 });

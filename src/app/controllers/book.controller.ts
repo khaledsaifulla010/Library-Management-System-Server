@@ -94,3 +94,22 @@ bookRoutes.put("/books/:bookId", async (req: Request, res: Response) => {
     });
   }
 });
+
+// DELETE A BOOK BY ID //
+bookRoutes.delete("/books/:bookId", async (req: Request, res: Response) => {
+  try {
+    const { bookId } = req.params;
+    const deletedBook = await Book.findByIdAndDelete(bookId);
+    res.status(200).json({
+      success: true,
+      message: "Book deleted successfully",
+      data: null,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to update book",
+      error: (error as Error).message,
+    });
+  }
+});

@@ -1,16 +1,13 @@
 import express, { Application, Request, Response } from "express";
-import cors from "cors"; 
+import cors from "cors";
 import { bookRoutes } from "./app/controllers/book.controller";
 import { borrowRoutes } from "./app/controllers/borrow.controller";
 
 const app: Application = express();
 
-
 app.use(
   cors({
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    origin: ["http://localhost:5173"],
   })
 );
 

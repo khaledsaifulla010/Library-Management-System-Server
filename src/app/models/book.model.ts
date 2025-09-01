@@ -1,12 +1,31 @@
-import { model, Schema } from "mongoose";
+import { model, Schema, Model, Document, } from "mongoose";
 
-const BookSchema = new Schema(
+export interface IBook extends Document {
+  title: string;
+  author: string;
+  genre:
+    | "FICTION"
+    | "NON_FICTION"
+    | "SCIENCE"
+    | "HISTORY"
+    | "BIOGRAPHY"
+    | "FANTASY";
+  isbn: string;
+  description?: string;
+  copies: number;
+  available: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface BookModel extends Model<IBook> {
+  adjustCopies(bookId: string, quantity: number): Promise<IBook>;
+  returnCopies(bookId: string, quantity: number): Promise<IBook>;
+}
+
+const BookSchema = new Schema<IBook, BookModel>(
   {
-    title: {
-      type: String,
-      required: [true, "Title is required"],
-      trim: true,
-    },
+    title: { type: String, required: [true, "Title is required"], trim: true },
     author: {
       type: String,
       required: [true, "Author is required"],
@@ -15,16 +34,14 @@ const BookSchema = new Schema(
     genre: {
       type: String,
       required: [true, "Genre is required"],
-      enum: {
-        values: [
-          "FICTION",
-          "NON_FICTION",
-          "SCIENCE",
-          "HISTORY",
-          "BIOGRAPHY",
-          "FANTASY",
-        ],
-      },
+      enum: [
+        "FICTION",
+        "NON_FICTION",
+        "SCIENCE",
+        "HISTORY",
+        "BIOGRAPHY",
+        "FANTASY",
+      ],
     },
     isbn: {
       type: String,
@@ -32,11 +49,7 @@ const BookSchema = new Schema(
       unique: true,
       trim: true,
     },
-    description: {
-      type: String,
-      default: "",
-      trim: true,
-    },
+    description: { type: String, default: "", trim: true },
     copies: {
       type: Number,
       required: [true, "Copies count is required"],
@@ -46,18 +59,12 @@ const BookSchema = new Schema(
         message: "Copies must be a non-negative integer",
       },
     },
-    available: {
-      type: Boolean,
-      default: true,
-    },
+    available: { type: Boolean, default: true },
   },
-  {
-    versionKey: false,
-    timestamps: true,
-  }
+  { versionKey: false, timestamps: true }
 );
 
-// STATIC METHOD TO HANDLE BORROW LOGIC //
+// STATIC METHODS //
 BookSchema.statics.adjustCopies = async function (
   bookId: string,
   quantity: number
@@ -67,11 +74,22 @@ BookSchema.statics.adjustCopies = async function (
   if (book.copies < quantity) throw new Error("Not enough copies available");
 
   book.copies -= quantity;
-  if (book.copies === 0) {
-    book.available = false;
-  }
+  if (book.copies === 0) book.available = false;
   await book.save();
   return book;
 };
 
-export const Book = model("Book", BookSchema);
+BookSchema.statics.returnCopies = async function (
+  bookId: string,
+  quantity: number
+) {
+  const book = await this.findById(bookId);
+  if (!book) throw new Error("Book not found");
+
+  book.copies += quantity;
+  if (book.copies > 0) book.available = true;
+  await book.save();
+  return book;
+};
+
+export const Book = model<IBook, BookModel>("Book", BookSchema);
